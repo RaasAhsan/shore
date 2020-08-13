@@ -37,7 +37,8 @@ object Interpreter {
   def main(args: Array[String]): Unit = {
     val input = "(plus (plus 1 2) (times 3 4))"
     val tokens = Lexer.tokenize(input)
-    println(tokens)
+    val expr = Parser.parse(tokens.get)
+    println(expr)
   }
 
 }
