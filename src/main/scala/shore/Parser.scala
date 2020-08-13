@@ -31,41 +31,51 @@ object Parser {
   }
 
   def parseNumber(tokens: List[Token]): ParseResult[Expr] =
-    tokens match {
-      case t :: ts =>
-        t match {
-          case Token.Number(value) => Success(ts, Expr.Number(value))
-          case _ => Failure
-        }
-      case _ =>  Failure
+    parseToken(tokens) {
+      case Token.Number(value) => Expr.Number(value)
     }
 
   def parseIdentifier(tokens: List[Token]): ParseResult[Expr] =
-    tokens match {
-      case t :: ts =>
-        t match {
-          case Token.Name(value) => Success(ts, Expr.Name(value))
-          case _ => Failure
-        }
-      case _ =>  Failure
+    parseToken(tokens) {
+      case Token.Name(value) => Expr.Name(value)
+    }
+
+  def parseLeftParen(tokens: List[Token]): ParseResult[Unit] =
+    parseToken(tokens) {
+      case Token.LeftParentheses => ()
+    }
+
+  def parseRightParen(tokens: List[Token]): ParseResult[Unit] =
+    parseToken(tokens) {
+      case Token.RightParentheses => ()
     }
 
   def parseCombination(tokens: List[Token]): ParseResult[Expr] =
-    tokens match {
-      case t :: ts if t == Token.LeftParentheses =>
-        parseExpr(ts) match {
+    parseLeftParen(tokens) match {
+      case Success(ts2, _) =>
+        parseExpr(ts2) match {
           case Success(ts2, operator) =>
             parseExprs(ts2) match {
               case Success(ts3, operands) =>
-                ts3 match {
-                  case y :: ys if y == Token.RightParentheses => Success(ys, Expr.Combination(operator, operands))
-                  case _ => Failure
+                parseRightParen(ts3) match {
+                  case Success(ts3, _) => Success(ts3, Expr.Combination(operator, operands))
+                  case Failure => Failure
                 }
               case Failure => Failure
             }
           case Failure => Failure
         }
-      case _ => Failure
+      case Failure => Failure
+    }
+
+  private def parseToken[A](tokens: List[Token])(f: PartialFunction[Token, A]): ParseResult[A] =
+    tokens match {
+      case t :: ts =>
+        f.unapply(t) match {
+          case Some(value) => Success(ts, value)
+          case None => Failure
+        }
+      case _ =>  Failure
     }
 
 }
