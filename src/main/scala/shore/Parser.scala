@@ -1,0 +1,5 @@
+package shore
+
+object Parser {
+
+}

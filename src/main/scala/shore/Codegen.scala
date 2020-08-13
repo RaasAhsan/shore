@@ -1,10 +1,9 @@
-package shore.codegen
+package shore
 
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes._
-import shore.ast.CompilationUnit
+import org.objectweb.asm.Opcodes.{ACC_PUBLIC, ACC_STATIC, GETSTATIC, INVOKEVIRTUAL, RETURN, V1_8}
 
-object ClassGenerator {
+object Codegen {
 
   def generateClass(): Array[Byte] = {
     val cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS)
@@ -22,10 +21,6 @@ object ClassGenerator {
     cw.visitEnd()
 
     cw.toByteArray
-  }
-
-  def generate(program: CompilationUnit): Array[Byte] = {
-    ???
   }
 
 }
